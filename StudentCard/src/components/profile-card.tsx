@@ -6,16 +6,17 @@ interface ProfileCardProps {
   studentId: string;
   department: string;
   bio: string;
+  skills?: string[]; // Optional array of strings
 }
 
-export default function ProfileCard({ name, studentId, department, bio }: ProfileCardProps) {
+export default function ProfileCard({ name, studentId, department, bio, skills }: ProfileCardProps) {
   const initials = name.split(' ').map(word => word[0]).join('');
-
-  // Declare state variable 'followed' and setter function 'setFollowed'
   const [followed, setFollowed] = useState(false);
+  const [followerCount, setFollowerCount] = useState(120);
 
   const handleFollow = () => {
     setFollowed(!followed);
+    setFollowerCount(prev => (followed ? prev - 1 : prev + 1));
   };
 
   return (
@@ -28,11 +29,23 @@ export default function ProfileCard({ name, studentId, department, bio }: Profil
       <Text style={styles.idBadge}>ID: {studentId}</Text>
       <Text style={styles.role}>{department}</Text>
 
+      <Text style={styles.followersText}>{followerCount} Followers</Text>
+
       <View style={styles.divider} />
 
       <Text style={styles.bio}>{bio}</Text>
 
-      {/* Follow button with dynamic styling */}
+      {/* Conditional rendering for skills array */}
+      {skills && skills.length > 0 && (
+        <View style={styles.skillsContainer}>
+          {skills.map((skill, index) => (
+            <View key={index} style={styles.skillBadge}>
+              <Text style={styles.skillText}>{skill}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
       <TouchableOpacity
         style={[styles.button, followed && styles.buttonFollowed]}
         onPress={handleFollow}
@@ -47,11 +60,13 @@ export default function ProfileCard({ name, studentId, department, bio }: Profil
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ffffffff",
     borderRadius: 16,
     padding: 28,
     width: "88%",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: '#252525ff',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -63,7 +78,7 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: "#0D9488",
+    backgroundColor: "#227bb6ff",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -106,6 +121,26 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
   },
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: 12,
+    gap: 8,
+  },
+  skillBadge: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  skillText: {
+    fontSize: 12,
+    color: '#1D4ED8',
+    fontWeight: '500',
+  },
   button: {
     marginTop: 20,
     paddingVertical: 10,
@@ -125,5 +160,11 @@ const styles = StyleSheet.create({
   },
   buttonTextFollowed: {
     color: '#FFFFFF',
+  },
+  followersText: {
+  fontSize: 13,
+  color: '#475569',
+  marginBottom: 12,
+  fontWeight: '500',
   },
 });
