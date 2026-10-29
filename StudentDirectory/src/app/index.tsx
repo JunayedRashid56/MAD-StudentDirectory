@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import StudentItem from "../../components/student-item";
 import { Student, STUDENTS } from "../../data/students";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,13 +18,18 @@ export default function HomeScreen() {
     setSelectedStudent((prev) => (prev?.id === student.id ? null : student));
   };
 
-  // Derived value: filter students based on query
-  // This is NOT state — it is computed from state every render
+  const [sortAsc, setSortAsc] = useState(true);
+
+  // Filter students based on search query, then sort by name
   const filtered = STUDENTS.filter((s) => {
     return (
-      s.name.toLowerCase().includes(query.toLowerCase()) || // check if name matches query OR
-      s.department.toLowerCase().includes(query.toLowerCase()) // check if department matches query
+      s.name.toLowerCase().includes(query.toLowerCase()) ||
+      s.department.toLowerCase().includes(query.toLowerCase())
     );
+  }).sort((a, b) => {
+    return sortAsc
+      ? a.name.localeCompare(b.name)
+      : b.name.localeCompare(a.name);
   });
 
   return (
@@ -33,14 +38,22 @@ export default function HomeScreen() {
       <View style={styles.titleBar}>
         <Text style={styles.title}>Student Directory</Text>
       </View>
+      <Pressable onPress={() => setSortAsc(!sortAsc)} style={styles.sortButton}>
+        <Text style={styles.sortButtonText}>{sortAsc ? "A-Z ↕" : "Z-A ↕"}</Text>
+      </Pressable>
 
       <SearchBar value={query} onChangeText={setQuery} />
 
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
-        // NEW: update the onPress handler to toggle selection and pass isSelected prop to StudentItem
-        // and the isSelected prop is used to conditionally style the selected student item in the list (e.g., highlight it)
+        ListHeaderComponent={
+          <View style={styles.headerSummary}>
+            <Text style={styles.headerText}>
+              Showing {filtered.length} of {STUDENTS.length} students
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <StudentItem
             student={item}
@@ -107,5 +120,29 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: "#94A3B8",
+  },
+  headerSummary: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "#E2E8F0",
+  },
+  headerText: {
+    fontSize: 12,
+    color: "#475569",
+    fontWeight: "600",
+  },
+  sortButton: {
+    alignSelf: "flex-end",
+    marginHorizontal: 16,
+    marginVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#0D1F4E",
+    borderRadius: 6,
+  },
+  sortButtonText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "600",
   },
 });
