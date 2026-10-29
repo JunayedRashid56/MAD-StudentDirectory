@@ -7,7 +7,11 @@ interface StudentItemProps {
   isSelected: boolean;
 }
 
-export default function StudentItem({ student, onPress, isSelected }: StudentItemProps) {
+export default function StudentItem({
+  student,
+  onPress,
+  isSelected,
+}: StudentItemProps) {
   return (
     <TouchableOpacity
       style={[styles.row, isSelected && styles.rowSelected]}
@@ -20,8 +24,12 @@ export default function StudentItem({ student, onPress, isSelected }: StudentIte
         resizeMode="cover"
       />
       <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>{student.name}</Text>
-        <Text style={styles.department} numberOfLines={1}>{student.department}</Text>
+        <Text style={styles.name} numberOfLines={1}>
+          {student.name}
+        </Text>
+        <Text style={styles.department} numberOfLines={1}>
+          {student.department}
+        </Text>
         <Text style={styles.id}>ID: {student.studentId}</Text>
       </View>
       <Text style={styles.chevron}>{isSelected ? "▲" : "▶"}</Text>
