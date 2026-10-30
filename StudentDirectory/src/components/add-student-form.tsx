@@ -1,5 +1,4 @@
 // components/add-student-form.tsx
-
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -7,13 +6,12 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  View,
 } from "react-native";
+import { router } from "expo-router";
 import FormField from "./form-field";
 import { Student } from "../data/students";
-
-interface AddStudentFormProps {
-  onSubmitSuccess: (student: Student) => void;
-}
+import { useStudents } from "../context/students-context";
 
 interface FormData {
   name: string;
@@ -59,9 +57,10 @@ function validateForm(data: FormData): FormErrors {
   return newErrors;
 }
 
-export default function AddStudentForm({
-  onSubmitSuccess,
-}: AddStudentFormProps) {
+export default function AddStudentForm() {
+  // Consume the global dispatch function from context[cite: 3]
+  const { dispatch } = useStudents();
+
   const [formData, setFormData] = useState<FormData>({
     name: "",
     studentId: "",
@@ -109,32 +108,32 @@ export default function AddStudentForm({
         department: formData.department.trim(),
         bio: formData.bio.trim(),
         skills: formData.skillsText
-          ? formData.skillsText
-              .split(",")
-              .map((s) => s.trim())
-              .filter((s) => s.length > 0)
-          : ["React Native"],
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0),
         avatarUrl: "https://i.pravatar.cc/150?u=" + Date.now(),
       };
 
       setIsSubmitting(false);
       setSubmitTrigger(false);
-      onSubmitSuccess(newStudent);
+
+      // Dispatch action directly to global state and navigate back[cite: 3]
+      dispatch({ type: "ADD_STUDENT", payload: newStudent });
+      router.back();
     }, 1500);
 
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [submitTrigger]);
+  }, [submitTrigger, formData, dispatch]);
 
   const handleSubmitPress = () => {
-    setTouched((prev) => ({
-      ...prev,
+    setTouched({
       name: true,
       studentId: true,
       department: true,
       bio: true,
-    }));
+    });
     setSubmitAttempted(true);
 
     if (isFormValid) {
