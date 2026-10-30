@@ -1,10 +1,10 @@
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import StudentItem from "../../components/student-item";
-import { Student, STUDENTS } from "../../data/students";
+import StudentItem from "@/components/student-item";
+import { Student, STUDENTS } from "@/data/students";
 import { SafeAreaView } from "react-native-safe-area-context";
-import SearchBar from "../../components/search-bar";
+import SearchBar from "@/components/search-bar";
 import { useState } from "react";
-import StudentDetail from "../../components/student-detail";
+import StudentDetail from "@/components/student-detail";
 
 export default function HomeScreen() {
   // State 1: the current search query
