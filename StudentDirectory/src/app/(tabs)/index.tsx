@@ -1,5 +1,4 @@
-// app/(tabs)/index.tsx — refactored
-import { router } from "expo-router";
+// app/(tabs)/index.tsx
 import { useState } from "react";
 import {
   FlatList,
@@ -12,15 +11,21 @@ import {
 import SearchBar from "../../components/search-bar";
 import StudentDetail from "../../components/student-detail";
 import StudentItem from "../../components/student-item";
+import AddStudentForm from "../../components/add-student-form";
 import { useStudents } from "../../context/students-context";
 import { Student } from "../../data/students";
 
 export default function Index() {
   const { students } = useStudents();
 
-  // Local UI state only
+  // Local UI state
+  const [showForm, setShowForm] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+  if (showForm) {
+    return <AddStudentForm onClose={() => setShowForm(false)} />;
+  }
 
   const filtered = students.filter(
     (s) =>
@@ -38,7 +43,7 @@ export default function Index() {
         <Text style={styles.title}>Student Directory</Text>
         <Pressable
           style={styles.addButton}
-          onPress={() => router.push("/(tabs)/add-student")}
+          onPress={() => setShowForm(true)}
         >
           <Text style={styles.addButtonText}>+ Add</Text>
         </Pressable>

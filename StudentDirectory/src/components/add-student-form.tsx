@@ -57,7 +57,11 @@ function validateForm(data: FormData): FormErrors {
   return newErrors;
 }
 
-export default function AddStudentForm() {
+interface AddStudentFormProps {
+  onClose?: () => void;
+}
+
+export default function AddStudentForm({ onClose }: AddStudentFormProps = {}) {
   // Consume the global dispatch function from context[cite: 3]
   const { dispatch } = useStudents();
 
@@ -119,7 +123,7 @@ export default function AddStudentForm() {
 
       // Dispatch action directly to global state and navigate back[cite: 3]
       dispatch({ type: "ADD_STUDENT", payload: newStudent });
-      router.back();
+      if (onClose) { onClose(); } else { router.back(); }
     }, 1500);
 
     return () => {
