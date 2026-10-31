@@ -28,7 +28,7 @@ interface FormErrors {
   bio?: string;
 }
 
-function validateForm(data: FormData): FormErrors {
+function validateForm(data: FormData, existingStudents: Student[]): FormErrors {
   const newErrors: FormErrors = {};
 
   if (data.name.trim().length === 0) {
@@ -42,6 +42,10 @@ function validateForm(data: FormData): FormErrors {
     newErrors.studentId = "Student ID is required.";
   } else if (!idPattern.test(data.studentId.trim())) {
     newErrors.studentId = "Format must be NN-NNNNN-N (e.g. 22-12345-1).";
+  } else if (
+    existingStudents.some((s) => s.studentId === data.studentId.trim())
+  ) {
+    newErrors.studentId = "Student ID already exists";
   }
 
   if (data.department.trim().length === 0) {
@@ -62,8 +66,8 @@ interface AddStudentFormProps {
 }
 
 export default function AddStudentForm({ onClose }: AddStudentFormProps = {}) {
-  // Consume the global dispatch function from context[cite: 3]
-  const { dispatch } = useStudents();
+  // Consume the global students and dispatch from context
+  const { students, dispatch } = useStudents();
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -92,9 +96,9 @@ export default function AddStudentForm({ onClose }: AddStudentFormProps = {}) {
   };
 
   useEffect(() => {
-    const newErrors = validateForm(formData);
+    const newErrors = validateForm(formData, students);
     setErrors(newErrors);
-  }, [formData]);
+  }, [formData, students]);
 
   const isFormValid =
     Object.keys(errors).length === 0 &&
@@ -112,24 +116,30 @@ export default function AddStudentForm({ onClose }: AddStudentFormProps = {}) {
         department: formData.department.trim(),
         bio: formData.bio.trim(),
         skills: formData.skillsText
-          .split(",")
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0),
+          ? formData.skillsText
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+          : ["React Native"],
         avatarUrl: "https://i.pravatar.cc/150?u=" + Date.now(),
       };
 
       setIsSubmitting(false);
       setSubmitTrigger(false);
 
-      // Dispatch action directly to global state and navigate back[cite: 3]
+      // Dispatch action directly to global state and navigate back
       dispatch({ type: "ADD_STUDENT", payload: newStudent });
-      if (onClose) { onClose(); } else { router.back(); }
+      if (onClose) {
+        onClose();
+      } else {
+        router.back();
+      }
     }, 1500);
 
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [submitTrigger, formData, dispatch]);
+  }, [submitTrigger, formData, dispatch, onClose]);
 
   const handleSubmitPress = () => {
     setTouched({

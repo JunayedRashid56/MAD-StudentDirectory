@@ -1,6 +1,7 @@
 // app/(tabs)/index.tsx
 import { useState } from "react";
 import {
+  Alert,
   FlatList,
   Pressable,
   SafeAreaView,
@@ -16,7 +17,7 @@ import { useStudents } from "../../context/students-context";
 import { Student } from "../../data/students";
 
 export default function Index() {
-  const { students } = useStudents();
+  const { students, dispatch } = useStudents();
 
   // Local UI state
   const [showForm, setShowForm] = useState(false);
@@ -26,6 +27,21 @@ export default function Index() {
   if (showForm) {
     return <AddStudentForm onClose={() => setShowForm(false)} />;
   }
+
+  const handleReset = () => {
+    Alert.alert(
+      "Reset Directory",
+      "Are you sure you want to reset the directory to the default list?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: () => dispatch({ type: "RESET" }),
+        },
+      ]
+    );
+  };
 
   const filtered = students.filter(
     (s) =>
@@ -40,13 +56,18 @@ export default function Index() {
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.titleBar}>
-        <Text style={styles.title}>Student Directory</Text>
-        <Pressable
-          style={styles.addButton}
-          onPress={() => setShowForm(true)}
-        >
-          <Text style={styles.addButtonText}>+ Add</Text>
-        </Pressable>
+        <Text style={styles.title}>Student Directory ({students.length})</Text>
+        <View style={styles.actionButtons}>
+          <Pressable style={styles.resetButton} onPress={handleReset}>
+            <Text style={styles.resetButtonText}>Reset</Text>
+          </Pressable>
+          <Pressable
+            style={styles.addButton}
+            onPress={() => setShowForm(true)}
+          >
+            <Text style={styles.addButtonText}>+ Add</Text>
+          </Pressable>
+        </View>
       </View>
 
       <SearchBar value={query} onChangeText={setQuery} />
@@ -83,7 +104,15 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     backgroundColor: "#0D1F4E",
   },
-  title: { fontSize: 20, fontWeight: "bold", color: "#FFFFFF" },
+  title: { fontSize: 18, fontWeight: "bold", color: "#FFFFFF" },
+  actionButtons: { flexDirection: "row", gap: 8, alignItems: "center" },
+  resetButton: {
+    backgroundColor: "#475569",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  resetButtonText: { color: "#FFFFFF", fontWeight: "700", fontSize: 12 },
   addButton: {
     backgroundColor: "#0D9488",
     paddingHorizontal: 14,
